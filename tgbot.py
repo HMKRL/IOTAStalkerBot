@@ -40,8 +40,17 @@ class Tgbot:
 
         return requests.post(self.__api + 'sendPhoto', data = data, files = files)
 
+    def answerCallbackQuery(self, callback_query_id, optional = None):
+        data = {
+                'callback_query_id': callback_query_id
+                }
+        if optional:
+            data.update(optional)
+
+        return requests.post(self.__api + 'answerCallbackQuery', json = data)
+
 def img2bytes(pilimg):
-     """Helper function to convert image to multipart/form-data
+    """Helper function to convert image to multipart/form-data
     @param pilimg: open() or qrcode generated image
     @type  pilimg: Image
 

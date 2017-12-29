@@ -2,7 +2,17 @@ import urllib.request
 import AdvancedHTMLParser
 
 def getSupportedCryptos():
-    cryptos = ['bitcoin', 'ethereum', 'ripple', 'bitcoin-cash', 'litecoin', 'iota', 'monero']
+    cryptos = [
+            ('Bitcoin', 'BTC', 'bitcoin'),
+            ('Ethereum', 'ETH', 'ethereum'),
+            ('IOTA', 'MIOTA', 'iota'),
+            ('Bitcoin Cash', 'BCH', 'bitcoin-cash'),
+            ('Litecoin', 'LTC', 'litecoin'),
+            ('Monero', 'XMR', 'monero'),
+            ('Ripple', 'XRP', 'ripple'),
+            ('Dash', 'DASH', 'dash'),
+            ('Qtum', 'QTUM', 'qtum')
+            ]
     return cryptos
 
 def getPrice(crypto):
