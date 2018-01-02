@@ -9,7 +9,7 @@ import io
 import json
 import requests
 
-class Tgbot:
+class Tgbot(object):
     __api = 'https://api.telegram.org/bot' + os.environ['TG_BOT_KEY'] + '/'
 
     def __init__(self):
