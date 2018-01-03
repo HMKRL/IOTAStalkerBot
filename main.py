@@ -2,6 +2,7 @@
 
 import os
 import json
+import iota
 import urllib
 import qrcode
 import requests
@@ -25,14 +26,18 @@ fsm = fsm.MyFSM()
 node = cryptoutil.IOTA()
 donate_addr = 'KMNGEYGMTWLCFEXSB9ZGTHNQSGUGRJRICIATMXFBDVLWHPBBQIPNXVWHARML99VVQGGMHD9VCMHIU9PXDITRHDLCWX'
 last_donate_time = 0
+last_donate_id = 229942559
 
 
 def update():
     trytes = node.getTransactions('KMNGEYGMTWLCFEXSB9ZGTHNQSGUGRJRICIATMXFBDVLWHPBBQIPNXVWHARML99VVQGGMHD9VCMHIU9PXDITRHDLCWX')
     for tryte in trytes:
-        if tryte.find('STALKERBOTDONATE') != -1: # donation transaction found
-            pass
-            
+        transaction = iota.Transaction.from_tryte_string(tryte)
+        global last_donate_time
+        if tryte.find('STALKERBOTDONATE') != -1 and transaction.timestamp > last_donate_time and last_donate_id != 0: # donation transaction found
+            print('Donation found!')
+            bot.sendMessage(last_donate_id, 'Thank you for donating ' + str(transaction.value) + ' IOTA!')
+            last_donate_time = transaction.timestamp
 
     Timer(5.0, update).start()
 
@@ -77,14 +82,21 @@ def webhook_handler():
                     'address': donate_addr,
                     'amount': '',
                     'message': 'STALKERBOTDONATE',
-                    'tag': ''
+                    'tag': 'STALKERBOTDONATE'
             }
 
             img = qrcode.make(json.dumps(donate_req))
 
             bot.sendPhoto(chat_id, tgbot.img2bytes(img))
 
-            last_donate_time = node.getNodeTime()['time']
+            trytes = node.getTransactions('KMNGEYGMTWLCFEXSB9ZGTHNQSGUGRJRICIATMXFBDVLWHPBBQIPNXVWHARML99VVQGGMHD9VCMHIU9PXDITRHDLCWX')
+            for tryte in trytes:
+                transaction = iota.Transaction.from_tryte_string(tryte)
+                global last_donate_time
+                if tryte.find('STALKERBOTDONATE') != -1 and transaction.timestamp > last_donate_time:
+                    last_donate_time = transaction.timestamp
+
+            last_donate_id = chat_id
 
         else:
             try:
@@ -124,5 +136,5 @@ def webhook_handler():
 
 if __name__ == '__main__' :
     fsm.get_graph().draw('state_diagram.png', prog = 'dot')
-    app.run(host = server_host, port = server_port, debug = False, ssl_context = ('../ssl/public.pem', '../ssl/key.pem'))
     Timer(5.0, update).start()
+    app.run(host = server_host, port = server_port, debug = False, ssl_context = ('../ssl/public.pem', '../ssl/key.pem'))

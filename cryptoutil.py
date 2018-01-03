@@ -31,9 +31,9 @@ def getUSDTWD():
     return float(json.loads(page.decode())['rates']['TWD'])
 
 class IOTA(object):
-    __node = 'https://nodes.iota.cafe:443'
+    __node = 'https://durian.iotasalad.org:14265'
     __adapter = object()
-    def __init__(self, node_protocal = 'https', node_url = 'nodes.iota.cafe', node_port = '443'):
+    def __init__(self, node_protocal = 'https', node_url = 'durian.iotasalad.org', node_port = '14265'):
         self.__node = node_protocal + '://' + node_url + ':' + node_port
         self.__adapter = iota.Iota(self.__node)
 
