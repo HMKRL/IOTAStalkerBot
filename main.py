@@ -56,13 +56,12 @@ def update():
 
     global pre_price
     price = cryptoutil.getPrice('iota')
-    print('current price:', price)
     for track_id, track_price in track_limit:
-        print('id:', track_id, 'is tracking at', track_price)
         if pre_price < track_price and track_price < price:
             bot.sendMessage(track_id, 'IOTA up@' + str(track_price))
         if pre_price > track_price and track_price > price:
             bot.sendMessage(track_id, 'IOTA down@' + str(track_price))
+        pre_price = price
 
     Timer(5.0, update).start()
 
