@@ -17,7 +17,6 @@ def getSupportedCryptos():
     return cryptos
 
 def getPrice(crypto):
-    print(crypto)
     page = urllib.request.urlopen('https://coinmarketcap.com/currencies/' + crypto).read()
     parser = AdvancedHTMLParser.AdvancedHTMLParser()
     parser.parseStr(page.decode())

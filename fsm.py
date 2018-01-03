@@ -17,11 +17,11 @@ states = [
 
 transitions = [
     ['cmd_advanced', 'initial', 'advanced'],
-    ['cmd_fiat', 'initial', 'advanced'],
     ['cmd_crypto', 'initial', 'basic'],
     ['cmd_crypto', 'fiat', 'calculate'],
     ['cmd_crypto', 'amount', 'calculate'],
     ['cmd_fiat', 'advanced', 'fiat'],
+    ['cmd_fiat', 'initial', 'fiat'],
     ['cmd_fiat', 'amount', 'fiat'],
     ['cmd_amount', 'advanced', 'amount'],
     ['cmd_amount', 'initial', 'amount'],
@@ -62,6 +62,3 @@ class MyFSM(object):
         self.__amount = 1
         self.__use_TWD = False
         bot.sendMessage(chat_id, msg)
-
-if __name__ == "__main__":
-    fsm.get_graph().draw('state_diagram.png', prog = 'dot')

@@ -40,10 +40,10 @@ def webhook_handler():
 
     message = chatreq.get('message')
     if message:
-        if message['text'] == '/rate':
-            chat_id = message['chat']['id']
-            msgtext = message['text']
+        chat_id = message['chat']['id']
+        msgtext = message['text']
 
+        if msgtext == '/rate':
             keyboard = []
             row = []
             width = 3;
@@ -62,8 +62,9 @@ def webhook_handler():
                 })
         else:
             try:
-                amount = float(message['text'])
+                amount = float(msgtext)
                 fsm.setAmount(amount)
+                bot.sendMessage(chat_id, 'OK, calculate price of ' + str(amount) + ' cryptos.')
             except ValueError:
                 pass
             else:
@@ -82,10 +83,10 @@ def webhook_handler():
                 })
             fsm.cmd_advanced()
         elif callback_query['data'] == 'USD':
-            bot.sendMessage(callback_query['from']['id'], 'You choosed USD for fiat')
+            bot.sendMessage(callback_query['from']['id'], 'You have choosed USD as fiat')
             fsm.cmd_fiat(useTWD = False)
         elif callback_query['data'] == 'TWD':
-            bot.sendMessage(callback_query['from']['id'], 'You choosed TWD for fiat')
+            bot.sendMessage(callback_query['from']['id'], 'You have choosed TWD as fiat')
             fsm.cmd_fiat(useTWD = True)
         else:
             for name, short, url in cryptos:
@@ -98,4 +99,5 @@ def webhook_handler():
     return "OK"
 
 if __name__ == '__main__' :
+    fsm.get_graph().draw('state_diagram.png', prog = 'dot')
     app.run(host = server_host, port = server_port, debug = False, ssl_context = ('../ssl/public.pem', '../ssl/key.pem'))
