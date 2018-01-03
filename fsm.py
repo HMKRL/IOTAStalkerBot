@@ -4,6 +4,8 @@ from transitions.extensions import GraphMachine as Machine
 import tgbot
 import cryptoutil
 
+bot = tgbot.Tgbot()
+
 states = [
     {'name': 'initial'},
     {'name': 'basic', 'on_enter': ['setCrypto'], 'on_exit': ['calculate']},
@@ -15,6 +17,7 @@ states = [
 
 transitions = [
     ['cmd_advanced', 'initial', 'advanced'],
+    ['cmd_fiat', 'initial', 'advanced'],
     ['cmd_crypto', 'initial', 'basic'],
     ['cmd_crypto', 'fiat', 'calculate'],
     ['cmd_crypto', 'amount', 'calculate'],
@@ -44,27 +47,21 @@ class MyFSM(object):
     def setCrypto(self, crypto):
         self.__crypto = crypto
 
-    def calculate(self):
+    def calculate(self, chat_id, crypto_short):
+        msg = str(self.__amount) + ' ' + crypto_short
         result = cryptoutil.getPrice(self.__crypto)
         if self.__use_TWD:
+            msg = msg + '/TWD: '
             result = result * cryptoutil.getUSDTWD()
+        else:
+            msg = msg + '/USD: '
 
         result = result * self.__amount
+        msg = msg + str(result)
+
         self.__amount = 1
         self.__use_TWD = False
+        bot.sendMessage(chat_id, msg)
 
-        print(result)
-
-if __name__ == '__main__' :
-    fsm = MyFSM()
-    fsm.cmd_crypto('iota')
-    fsm.send()
-    fsm.cmd_advanced()
-    fsm.cmd_fiat(useTWD = True)
-    fsm.cmd_amount(amount = 830)
-    fsm.cmd_crypto('iota')
-    fsm.send()
-    fsm.cmd_amount(amount = 830)
-    fsm.cmd_crypto('iota')
-    fsm.send()
+if __name__ == "__main__":
     fsm.get_graph().draw('state_diagram.png', prog = 'dot')
