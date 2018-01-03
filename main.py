@@ -10,25 +10,31 @@ import pygraphviz
 from flask import Flask
 from flask import request
 from io import BytesIO
+from threading import Timer
 
 import tgbot
 import cryptoutil
 import fsm
 
-server_host = 'pd2a.imslab.org'
+server_host = '140.116.245.242'
 server_port = 8443
 
 app = Flask(__name__)
 bot = tgbot.Tgbot()
 fsm = fsm.MyFSM()
+node = cryptoutil.IOTA()
+donate_addr = 'KMNGEYGMTWLCFEXSB9ZGTHNQSGUGRJRICIATMXFBDVLWHPBBQIPNXVWHARML99VVQGGMHD9VCMHIU9PXDITRHDLCWX'
+last_donate_time = 0
 
-def test(request):
-    img = qrcode.make('https://coinmarketcap.com/coins/')
 
-    if request.get('message'):
-        chat_id = request.get('message')['chat']['id']
+def update():
+    trytes = node.getTransactions('KMNGEYGMTWLCFEXSB9ZGTHNQSGUGRJRICIATMXFBDVLWHPBBQIPNXVWHARML99VVQGGMHD9VCMHIU9PXDITRHDLCWX')
+    for tryte in trytes:
+        if tryte.find('STALKERBOTDONATE') != -1: # donation transaction found
+            pass
+            
 
-        bot.sendPhoto(chat_id, tgbot.img2bytes(img))
+    Timer(5.0, update).start()
 
 @app.route('/tgWebHook', methods=['POST'])
 def webhook_handler():
@@ -60,14 +66,32 @@ def webhook_handler():
                     'inline_keyboard': keyboard,
                     }
                 })
+        elif msgtext == '/track':
+            pass
+        elif msgtext == '/remind':
+            pass
+        elif msgtext == '/confirm':
+            pass
+        elif msgtext == '/donate':
+            donate_req = {
+                    'address': donate_addr,
+                    'amount': '',
+                    'message': 'STALKERBOTDONATE',
+                    'tag': ''
+            }
+
+            img = qrcode.make(json.dumps(donate_req))
+
+            bot.sendPhoto(chat_id, tgbot.img2bytes(img))
+
+            last_donate_time = node.getNodeTime()['time']
+
         else:
             try:
                 amount = float(msgtext)
                 fsm.setAmount(amount)
                 bot.sendMessage(chat_id, 'OK, calculate price of ' + str(amount) + ' cryptos.')
             except ValueError:
-                pass
-            else:
                 pass
 
     callback_query = chatreq.get('callback_query')
@@ -101,3 +125,4 @@ def webhook_handler():
 if __name__ == '__main__' :
     fsm.get_graph().draw('state_diagram.png', prog = 'dot')
     app.run(host = server_host, port = server_port, debug = False, ssl_context = ('../ssl/public.pem', '../ssl/key.pem'))
+    Timer(5.0, update).start()

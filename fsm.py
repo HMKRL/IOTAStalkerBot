@@ -48,16 +48,18 @@ class MyFSM(object):
         self.__crypto = crypto
 
     def calculate(self, chat_id, crypto_short):
-        msg = str(self.__amount) + ' ' + crypto_short
+        msg = str(self.__amount) + ' ' + crypto_short + ' = '
         result = cryptoutil.getPrice(self.__crypto)
         if self.__use_TWD:
-            msg = msg + '/TWD: '
             result = result * cryptoutil.getUSDTWD()
-        else:
-            msg = msg + '/USD: '
-
+        
         result = result * self.__amount
         msg = msg + str(result)
+
+        if self.__use_TWD:
+            msg = msg + ' TWD'
+        else:
+            msg = msg + ' USD'
 
         self.__amount = 1
         self.__use_TWD = False
