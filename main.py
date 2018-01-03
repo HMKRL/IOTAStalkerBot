@@ -61,7 +61,7 @@ def update():
             bot.sendMessage(track_id, 'IOTA up@' + str(track_price))
         if pre_price > track_price and track_price > price:
             bot.sendMessage(track_id, 'IOTA down@' + str(track_price))
-        pre_price = price
+    pre_price = price
 
     Timer(5.0, update).start()
 
